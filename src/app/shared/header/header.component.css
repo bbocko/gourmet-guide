@@ -1,0 +1,29 @@
+mat-toolbar {
+  background-color: rgb(150, 210, 210);
+}
+
+.desktop-btn {
+  margin-right: 1rem;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.logo {
+  height: 32px;
+  border-radius: 0.5rem;
+}
+
+.app-name {
+  margin-left: 1rem;
+}
+
+.mobile-btn {
+  text-align: center;
+  box-sizing: border-box;
+  width: 50%;
+  padding: 0.5rem;
+  margin: 1rem;
+  border-radius: 1rem;
+}

@@ -1,1 +1,41 @@
-/* You can add global styles to this file, and also import other style files */
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2rem;
+}
+
+@media screen and (max-width: 600px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* styles for mobile menu dropdown below */
+
+div.cdk-overlay-pane {
+  min-width: 100% !important;
+  width: 100% !important;
+  background: rgb(170, 228, 228);
+  top: 56px !important;
+}
+
+div.mat-mdc-menu-panel {
+  min-width: 100% !important;
+  width: 100% !important;
+  background: rgb(170, 228, 228);
+}
+
+div.mat-mdc-menu-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

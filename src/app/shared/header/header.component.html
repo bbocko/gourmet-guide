@@ -1,0 +1,27 @@
+<mat-toolbar>
+  <img class="logo" src="logo.webp" alt="logo" />
+  <span class="app-name">Gourmet Guide</span>
+
+  <span class="spacer"></span>
+
+  <!-- desktop -->
+  @if (!isMobile) {
+  <button mat-button class="desktop-btn" routerLink="/">Search recipes</button>
+  <button mat-button class="desktop-btn" routerLink="/favorites">
+    Favorite recipes</button
+  >}
+
+  <!-- mobile -->
+  @if (isMobile) {
+  <button mat-icon-button [matMenuTriggerFor]="menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item class="mobile-btn" routerLink="/">
+      Search recipes
+    </button>
+    <button mat-menu-item class="mobile-btn" routerLink="/favorites">
+      Favorite recipes
+    </button> </mat-menu
+  >}
+</mat-toolbar>
