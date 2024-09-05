@@ -27,3 +27,12 @@ mat-toolbar {
   margin: 1rem;
   border-radius: 1rem;
 }
+
+.rotate {
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+}
+
+mat-icon {
+  transition: transform 0.2s ease;
+}

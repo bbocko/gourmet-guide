@@ -13,8 +13,13 @@
 
   <!-- mobile -->
   @if (isMobile) {
-  <button mat-icon-button [matMenuTriggerFor]="menu">
-    <mat-icon>menu</mat-icon>
+  <button
+    mat-icon-button
+    [matMenuTriggerFor]="menu"
+    (menuOpened)="menuOpened()"
+    (menuClosed)="menuClosed()"
+  >
+    <mat-icon [ngClass]="{ rotate: isMenuOpen }">menu</mat-icon>
   </button>
   <mat-menu #menu="matMenu">
     <button mat-menu-item class="mobile-btn" routerLink="/">
