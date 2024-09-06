@@ -1,13 +1,31 @@
 <mat-toolbar>
-  <img class="logo" src="logo.webp" alt="logo" />
+  <img
+    class="logo"
+    src="logo.webp"
+    alt="logo"
+    routerLink=""
+    routerLinkActive="active"
+  />
   <span class="app-name">Gourmet Guide</span>
 
   <span class="spacer"></span>
 
   <!-- desktop -->
   @if (!isMobile) {
-  <button mat-button class="desktop-btn" routerLink="/">Search recipes</button>
-  <button mat-button class="desktop-btn" routerLink="/favorites">
+  <button
+    mat-button
+    class="desktop-btn"
+    routerLink=""
+    routerLinkActive="active"
+  >
+    Search recipes
+  </button>
+  <button
+    mat-button
+    class="desktop-btn"
+    routerLink="/favorites"
+    routerLinkActive="active"
+  >
     Favorite recipes</button
   >}
 
@@ -22,11 +40,16 @@
     <mat-icon [ngClass]="{ rotate: isMenuOpen }">menu</mat-icon>
   </button>
   <mat-menu #menu="matMenu">
-    <button mat-menu-item class="mobile-btn" routerLink="/">
+    <a mat-menu-item class="mobile-btn" routerLink="" routerLinkActive="active">
       Search recipes
-    </button>
-    <button mat-menu-item class="mobile-btn" routerLink="/favorites">
+    </a>
+    <a
+      mat-menu-item
+      class="mobile-btn"
+      routerLink="/favorites"
+      routerLinkActive="active"
+    >
       Favorite recipes
-    </button> </mat-menu
+    </a> </mat-menu
   >}
 </mat-toolbar>
