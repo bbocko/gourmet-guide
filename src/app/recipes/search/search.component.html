@@ -1,3 +1,69 @@
-<p>search works!</p>
+<h1>Search recipes</h1>
 
-<a routerLink="/details" routerLinkActive="active">recipe details</a>
+<p>
+  Use Gourmet Guide's search functionality to effortlessly find delicious
+  recipes!
+</p>
+
+<form (submit)="onSearch()" class="search-form">
+  <div>
+    <label for="query">Recipe name</label>
+    <input
+      type="text"
+      name="query"
+      placeholder="Type recipe name"
+      [formControl]="query"
+      [matAutocomplete]="auto"
+    />
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="onOptionSelected($event)"
+    >
+      @for (suggestion of suggestions; track suggestion.id) {
+      <mat-option [value]="suggestion.title">{{ suggestion.title }}</mat-option>
+      }
+    </mat-autocomplete>
+  </div>
+
+  <div class="options-container">
+    <div>
+      <label for="cuisine">Select cuisine</label>
+      <select [formControl]="cuisine" name="cuisine">
+        <option value="">No preference</option>
+        <option value="italian">Italian</option>
+        <option value="french">French</option>
+        <option value="greek">Greek</option>
+        <option value="mexican">Mexican</option>
+        <option value="indian">Indian</option>
+        <option value="chinese">Chinese</option>
+        <option value="japanese">Japanese</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="diet">Select diet</label>
+      <select [formControl]="diet" name="diet">
+        <option value="">No preference</option>
+        <option value="vegetarian">Vegetarian</option>
+        <option value="vegan">Vegan</option>
+        <option value="ketogenic">Ketogenic</option>
+        <option value="gluten free">Gluten-free</option>
+      </select>
+    </div>
+  </div>
+
+  <button mat-button type="submit">Search recipes</button>
+</form>
+
+<div class="recipe-list">
+  <ul>
+    @for (recipe of recipeDetails; track recipe.id) {
+    <app-recipe-card
+      [title]="recipe.title"
+      [image]="recipe.image"
+      [readyInMinutes]="recipe.readyInMinutes"
+    >
+    </app-recipe-card>
+    }
+  </ul>
+</div>
