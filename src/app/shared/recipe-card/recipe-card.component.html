@@ -1,5 +1,27 @@
 <div class="card">
-  <img [src]="image()" alt="recipe image" class="card-image" />
-  <div class="card-title">{{ title() }}</div>
-  <div class="card-time">Ready in {{ readyInMinutes() }} minutes</div>
+  <img src="logo.webp" alt="recipe image" class="card-image" />
+  <div class="title-container">
+    <div class="title">
+      Lorem ipsum dolor sit amet consectetur adipisicing eli
+    </div>
+    <mat-icon
+      aria-hidden="false"
+      aria-label="star icon"
+      fontIcon="star"
+      [ngStyle]="{ color: getStarColor() }"
+      matTooltip="{{ getTooltipMessage() }}"
+      (click)="onIconClick()"
+    ></mat-icon>
+  </div>
+  <div class="time">Ready in {{ recipe().readyInMinutes }} minutes</div>
+  <div>
+    <button
+      mat-button
+      id="btn-open"
+      [routerLink]="['/details', recipe().id]"
+      routerLinkActive="active"
+    >
+      Check details
+    </button>
+  </div>
 </div>
