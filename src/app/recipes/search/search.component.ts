@@ -6,6 +6,7 @@ import {
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
 import { RecipeService } from '../recipe.service';
+import { FavoriteService } from '../favorites/favorite.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Recipe, RecipeDetails, Suggestion } from '../recipe.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -28,13 +29,13 @@ import { RecipeCardComponent } from '../../shared/recipe-card/recipe-card.compon
 })
 export class SearchComponent {
   private recipeService = inject(RecipeService);
+  private favoriteService = inject(FavoriteService);
   private destroyRef = inject(DestroyRef);
   private isOptionSelected = false;
 
   query = new FormControl<string>('');
   cuisine = new FormControl<string>('');
   diet = new FormControl<string>('');
-  number = new FormControl<string>('5'); // get max 5 recipes at once
 
   suggestions: Suggestion[] = [];
   recipes: Recipe[] = [];
@@ -42,8 +43,10 @@ export class SearchComponent {
 
   constructor() {
     this.query.valueChanges
+      // optimize triggering onAutocomplete function
       .pipe(debounceTime(200), distinctUntilChanged())
       .subscribe(() => {
+        // check if query value changes from selection autocomplete suggestion
         if (!this.isOptionSelected) {
           this.onAutocomplete();
         }
@@ -56,36 +59,48 @@ export class SearchComponent {
       query: this.query.value || '',
       cuisine: this.cuisine.value || '',
       diet: this.diet.value || '',
-      number: this.number.value || '5',
+      number: '6', // get max 6 recipes at once
     };
 
     if (queryParams.query) {
-      const subscribtion = this.recipeService
+      // search for recipes that match query params
+      const subscription = this.recipeService
         .searchRecipes(queryParams)
         .subscribe({
           next: (resData) => {
             this.recipes = resData.results;
-
             // store recipe IDs (for getRecipeDetails request)
             const recipeIds = this.recipes.map((recipe) => recipe.id).join(',');
-
             // get more details
             this.recipeService.getRecipeDetails(recipeIds).subscribe({
               next: (resData) => {
-                this.recipeDetails = resData;
+                this.recipeDetails = resData.map(
+                  (recipe: Partial<RecipeDetails>) => {
+                    return {
+                      // store recipes array and add isFavorite property to each
+                      // recipe (value is based on if it's already stored as favorite)
+                      ...recipe,
+                      isFavorite: this.favoriteService.isFavorite(recipe.id!),
+                    };
+                  }
+                );
+              },
+              error: (error) => {
+                console.log('Error fetching recipe details:', error);
+                this.recipeDetails = [];
               },
             });
 
             this.suggestions = [];
           },
           error: (error) => {
-            console.error('Error fetching recipes:', error);
+            console.log('Error fetching recipes:', error);
             this.recipes = [];
           },
         });
 
       this.destroyRef.onDestroy(() => {
-        subscribtion.unsubscribe();
+        subscription.unsubscribe();
       });
     }
   }
@@ -94,16 +109,20 @@ export class SearchComponent {
     const queryValue = this.query.value;
 
     if (queryValue && queryValue.length > 1) {
-      const subscribtion = this.recipeService
+      const subscription = this.recipeService
         .autocomplete(queryValue)
         .subscribe({
           next: (resData: Suggestion[]) => {
             this.suggestions = resData;
           },
+          error: (error) => {
+            console.log('Error fetching suggestions:', error);
+            this.suggestions = [];
+          },
         });
 
       this.destroyRef.onDestroy(() => {
-        subscribtion.unsubscribe();
+        subscription.unsubscribe();
       });
     } else {
       this.suggestions = [];
@@ -115,5 +134,22 @@ export class SearchComponent {
     this.query.setValue(selectedValue);
     this.isOptionSelected = true;
     this.suggestions = [];
+  }
+
+  onIconClicked(id: number) {
+    const recipeIndex = this.recipeDetails.findIndex(
+      (recipe) => recipe.id === id
+    );
+
+    if (recipeIndex !== -1) {
+      this.recipeDetails[recipeIndex].isFavorite =
+        !this.recipeDetails[recipeIndex].isFavorite;
+
+      if (this.recipeDetails[recipeIndex].isFavorite) {
+        this.favoriteService.addFavorite(id);
+      } else {
+        this.favoriteService.removeFavorite(id);
+      }
+    }
   }
 }

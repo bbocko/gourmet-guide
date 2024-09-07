@@ -49,6 +49,7 @@ export interface RecipeDetails {
   originalId: null;
   spoonacularScore: number;
   spoonacularSourceUrl: string;
+  isFavorite: boolean;
 }
 
 export interface AnalyzedInstruction {

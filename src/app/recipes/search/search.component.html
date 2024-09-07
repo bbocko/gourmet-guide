@@ -56,14 +56,8 @@
 </form>
 
 <div class="recipe-list">
-  <ul>
-    @for (recipe of recipeDetails; track recipe.id) {
-    <app-recipe-card
-      [title]="recipe.title"
-      [image]="recipe.image"
-      [readyInMinutes]="recipe.readyInMinutes"
-    >
-    </app-recipe-card>
-    }
-  </ul>
+  @for (recipe of recipeDetails; track recipe.id) {
+  <app-recipe-card [recipe]="recipe" (iconClicked)="onIconClicked($event)">
+  </app-recipe-card>
+  }
 </div>

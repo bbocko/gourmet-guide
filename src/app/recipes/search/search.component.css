@@ -55,7 +55,7 @@ select:focus {
 
 button[type="submit"] {
   background-color: rgb(150, 210, 210);
-  color: white;
+  color: #1a1b1f;
   border: none;
   border-radius: 4px;
   font-size: 1rem;
@@ -82,14 +82,12 @@ button[type="submit"]:hover {
 }
 
 .recipe-list {
+  width: 80%;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-}
-
-ul {
-  margin: 0;
-  padding: 0;
+  margin: 2rem auto;
 }
 
 @media screen and (max-width: 600px) {
@@ -105,9 +103,5 @@ ul {
 
   .options-container div {
     min-width: 100%;
-  }
-
-  button[type="submit"] {
-    width: 100%;
   }
 }
