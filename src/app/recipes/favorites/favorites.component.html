@@ -1,3 +1,8 @@
-<p>favorites works!</p>
+<h1>Favorite recipes</h1>
 
-<a routerLink="/details" routerLinkActive="active">recipe details</a>
+<div class="recipe-list">
+  @for (recipe of recipeDetails; track recipe.id) { @if (recipe.isFavorite) {
+  <app-recipe-card [recipe]="recipe" (iconClicked)="onIconClicked($event)">
+  </app-recipe-card>
+  } }
+</div>

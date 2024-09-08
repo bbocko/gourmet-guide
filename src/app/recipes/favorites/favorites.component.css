@@ -1,0 +1,8 @@
+.recipe-list {
+  width: 80%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem auto;
+}
