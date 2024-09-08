@@ -1,8 +1,8 @@
 <div class="card">
-  <img src="logo.webp" alt="recipe image" class="card-image" />
+  <img [src]="[recipe().image]" alt="recipe image" class="card-image" />
   <div class="title-container">
     <div class="title">
-      Lorem ipsum dolor sit amet consectetur adipisicing eli
+      {{ recipe().title }}
     </div>
     <mat-icon
       aria-hidden="false"
