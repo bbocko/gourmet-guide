@@ -1,7 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { env } from '../../../env.local';
-import { Observable } from 'rxjs';
+import { inject, Injectable, signal } from '@angular/core';
+import { env } from '../../../../env.local';
+import { Observable, tap } from 'rxjs';
+import { RecipeDetails } from '../recipe.model';
+import { FavoriteService } from '../favorites/favorite.service';
 
 interface QueryParams {
   query: string;
@@ -13,13 +15,16 @@ interface QueryParams {
 @Injectable({
   providedIn: 'root',
 })
-export class RecipeService {
+export class SearchService {
   private apiKey = env.apiKey;
   private complexSearchUrl =
     'https://api.spoonacular.com/recipes/complexSearch';
   private autocompleteUrl = 'https://api.spoonacular.com/recipes/autocomplete';
   private informationBulkUrl =
     'https://api.spoonacular.com/recipes/informationBulk';
+
+  private favoriteService = inject(FavoriteService);
+  public recipeDetailsArr = signal<Partial<RecipeDetails>[]>([]);
 
   constructor(private http: HttpClient) {}
 
@@ -43,6 +48,19 @@ export class RecipeService {
 
   getRecipeDetails(ids: string): Observable<any> {
     let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
-    return this.http.get(this.informationBulkUrl, { params });
+    return this.http.get(this.informationBulkUrl, { params }).pipe(
+      tap((response: any) => {
+        this.recipeDetailsArr.set(
+          response.map((recipe: Partial<RecipeDetails>) => {
+            return {
+              // store recipes array and add isFavorite property to each
+              // recipe (value is based on if it's already stored as favorite)
+              ...recipe,
+              isFavorite: this.favoriteService.isFavorite(recipe.id!),
+            };
+          })
+        );
+      })
+    );
   }
 }
