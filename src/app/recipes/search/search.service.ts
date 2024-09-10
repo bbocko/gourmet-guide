@@ -63,4 +63,21 @@ export class SearchService {
       })
     );
   }
+
+  getFavRecipeDetails(ids: string): Observable<any> {
+    let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
+    return this.http.get(this.informationBulkUrl, { params }).pipe(
+      tap((response: any) => {
+        this.favoriteService.favRecipeDetailsArr.set(
+          response.map((recipe: Partial<RecipeDetails>) => {
+            return {
+              // store recipes array and mark recipes as favorite
+              ...recipe,
+              isFavorite: true,
+            };
+          })
+        );
+      })
+    );
+  }
 }
