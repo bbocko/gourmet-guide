@@ -1,16 +1,17 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import {
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
-import { RecipeService } from '../recipe.service';
+import { SearchService } from './search.service';
 import { FavoriteService } from '../favorites/favorite.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Recipe, RecipeDetails, Suggestion } from '../recipe.model';
+import { Recipe, Suggestion } from '../recipe.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { RecipeCardComponent } from '../../shared/recipe-card/recipe-card.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-search',
@@ -28,7 +29,7 @@ import { RecipeCardComponent } from '../../shared/recipe-card/recipe-card.compon
   styleUrl: './search.component.css',
 })
 export class SearchComponent {
-  private recipeService = inject(RecipeService);
+  private searchService = inject(SearchService);
   private favoriteService = inject(FavoriteService);
   private destroyRef = inject(DestroyRef);
   private isOptionSelected = false;
@@ -39,7 +40,8 @@ export class SearchComponent {
 
   suggestions: Suggestion[] = [];
   recipes: Recipe[] = [];
-  recipeDetails: Partial<RecipeDetails>[] = [];
+
+  recipeDetails = computed(() => this.searchService.recipeDetailsArr());
 
   constructor() {
     this.query.valueChanges
@@ -62,55 +64,44 @@ export class SearchComponent {
       number: '6', // get max 6 recipes at once
     };
 
-    if (queryParams.query) {
-      // search for recipes that match query params
-      const subscription = this.recipeService
-        .searchRecipes(queryParams)
-        .subscribe({
-          next: (resData) => {
-            this.recipes = resData.results;
-            // store recipe IDs (for getRecipeDetails request)
-            const recipeIds = this.recipes.map((recipe) => recipe.id).join(',');
-            // get more details
-            this.recipeService.getRecipeDetails(recipeIds).subscribe({
-              next: (resData) => {
-                this.recipeDetails = resData.map(
-                  (recipe: Partial<RecipeDetails>) => {
-                    return {
-                      // store recipes array and add isFavorite property to each
-                      // recipe (value is based on if it's already stored as favorite)
-                      ...recipe,
-                      isFavorite: this.favoriteService.isFavorite(recipe.id!),
-                    };
-                  }
-                );
-              },
-              error: (error) => {
-                console.log('Error fetching recipe details:', error);
-                this.recipeDetails = [];
-              },
-            });
-
-            this.suggestions = [];
-          },
-          error: (error) => {
-            console.log('Error fetching recipes:', error);
-            this.recipes = [];
-          },
-        });
-
-      this.destroyRef.onDestroy(() => {
-        subscription.unsubscribe();
-      });
+    // don't call request if no query is set
+    if (!this.query.value) {
+      return;
     }
+
+    // search for recipes that match query params
+    this.searchService
+      .searchRecipes(queryParams)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resData) => {
+          this.recipes = resData.results;
+          // store recipe IDs (for getRecipeDetails request)
+          const recipeIds = this.recipes.map((recipe) => recipe.id).join(',');
+          // get more details
+          this.searchService.getRecipeDetails(recipeIds).subscribe({
+            error: (error) => {
+              console.log('Error fetching recipe details:', error);
+              this.searchService.recipeDetailsArr.set([]);
+            },
+          });
+
+          this.suggestions = [];
+        },
+        error: (error) => {
+          console.log('Error fetching recipes:', error);
+          this.recipes = [];
+        },
+      });
   }
 
   onAutocomplete() {
     const queryValue = this.query.value;
 
     if (queryValue && queryValue.length > 1) {
-      const subscription = this.recipeService
+      this.searchService
         .autocomplete(queryValue)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (resData: Suggestion[]) => {
             this.suggestions = resData;
@@ -120,10 +111,6 @@ export class SearchComponent {
             this.suggestions = [];
           },
         });
-
-      this.destroyRef.onDestroy(() => {
-        subscription.unsubscribe();
-      });
     } else {
       this.suggestions = [];
     }
@@ -137,15 +124,16 @@ export class SearchComponent {
   }
 
   onIconClicked(id: number) {
-    const recipeIndex = this.recipeDetails.findIndex(
-      (recipe) => recipe.id === id
-    );
+    const recipeIndex = this.searchService
+      .recipeDetailsArr()
+      .findIndex((recipe) => recipe.id === id);
+
+    const recipe = this.recipeDetails();
 
     if (recipeIndex !== -1) {
-      this.recipeDetails[recipeIndex].isFavorite =
-        !this.recipeDetails[recipeIndex].isFavorite;
+      recipe[recipeIndex].isFavorite = !recipe[recipeIndex].isFavorite;
 
-      if (this.recipeDetails[recipeIndex].isFavorite) {
+      if (recipe[recipeIndex].isFavorite) {
         this.favoriteService.addFavorite(id);
       } else {
         this.favoriteService.removeFavorite(id);

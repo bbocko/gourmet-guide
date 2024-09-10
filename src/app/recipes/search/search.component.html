@@ -56,7 +56,7 @@
 </form>
 
 <div class="recipe-list">
-  @for (recipe of recipeDetails; track recipe.id) {
+  @for (recipe of this.recipeDetails(); track recipe.id) {
   <app-recipe-card [recipe]="recipe" (iconClicked)="onIconClicked($event)">
   </app-recipe-card>
   }

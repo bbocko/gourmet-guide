@@ -1,10 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
+import { RecipeDetails } from '../recipe.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FavoriteService {
   private readonly FAVORITES_KEY = 'favorites';
+
+  public favRecipeDetailsArr = signal<Partial<RecipeDetails>[]>([]);
 
   getFavorites(): number[] {
     const favorites = localStorage.getItem(this.FAVORITES_KEY);

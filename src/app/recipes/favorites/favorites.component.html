@@ -1,7 +1,7 @@
 <h1>Favorite recipes</h1>
 
 <div class="recipe-list">
-  @for (recipe of recipeDetails; track recipe.id) { @if (recipe.isFavorite) {
+  @for (recipe of recipeDetails(); track recipe.id) { @if (recipe.isFavorite) {
   <app-recipe-card [recipe]="recipe" (iconClicked)="onIconClicked($event)">
   </app-recipe-card>
   } }
