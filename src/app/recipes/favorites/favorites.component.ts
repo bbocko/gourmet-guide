@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { FavoriteService } from './favorite.service';
+import { FavoritesService } from './favorites.service';
 import { RecipeCardComponent } from '../../shared/recipe-card/recipe-card.component';
 
 @Component({
@@ -11,9 +11,9 @@ import { RecipeCardComponent } from '../../shared/recipe-card/recipe-card.compon
   styleUrl: './favorites.component.css',
 })
 export class FavoritesComponent {
-  private favoriteService = inject(FavoriteService);
+  private favoritesService = inject(FavoritesService);
 
-  recipeDetails = computed(() => this.favoriteService.favRecipeDetailsArr());
+  recipeDetails = computed(() => this.favoritesService.favRecipeDetailsArr());
 
   onIconClicked(id: number) {
     const recipeArr = this.recipeDetails();
@@ -27,16 +27,16 @@ export class FavoritesComponent {
 
       if (!recipe.isFavorite) {
         // remove id from local storage
-        this.favoriteService.removeFavorite(id);
+        this.favoritesService.removeFavorite(id);
 
         // get the current favorite recipe array
-        const favRecipes = this.favoriteService.favRecipeDetailsArr();
+        const favRecipes = this.favoritesService.favRecipeDetailsArr();
         // filter out the recipe with the matching id
         const updatedFavRecipes = favRecipes.filter(
           (favRecipe) => favRecipe.id !== recipe.id
         );
         // set the updated array without the recipe
-        this.favoriteService.favRecipeDetailsArr.set(updatedFavRecipes);
+        this.favoritesService.favRecipeDetailsArr.set(updatedFavRecipes);
       }
     }
   }

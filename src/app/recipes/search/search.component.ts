@@ -6,7 +6,7 @@ import {
   MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
 import { SearchService } from './search.service';
-import { FavoriteService } from '../favorites/favorite.service';
+import { FavoritesService } from '../favorites/favorites.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Recipe, Suggestion } from '../recipe.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -30,7 +30,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class SearchComponent {
   private searchService = inject(SearchService);
-  private favoriteService = inject(FavoriteService);
+  private favoritesService = inject(FavoritesService);
   private destroyRef = inject(DestroyRef);
   private isOptionSelected = false;
 
@@ -135,10 +135,10 @@ export class SearchComponent {
 
       if (recipe.isFavorite) {
         // add id to local storage
-        this.favoriteService.addFavorite(id);
+        this.favoritesService.addFavorite(id);
 
         // get the current favorite recipe array
-        const favRecipes = this.favoriteService.favRecipeDetailsArr();
+        const favRecipes = this.favoritesService.favRecipeDetailsArr();
         // check if the recipe already exists in the favorites array
         const alreadyFavorite = favRecipes.some(
           (favRecipe) => favRecipe.id === recipe.id
@@ -148,20 +148,20 @@ export class SearchComponent {
           // if recipe isn't favorite, add it to the array
           favRecipes.push(recipe);
           // set the updated array back
-          this.favoriteService.favRecipeDetailsArr.set(favRecipes);
+          this.favoritesService.favRecipeDetailsArr.set(favRecipes);
         }
       } else {
         // remove id from local storage
-        this.favoriteService.removeFavorite(id);
+        this.favoritesService.removeFavorite(id);
 
         // get the current favorite recipe array
-        const favRecipes = this.favoriteService.favRecipeDetailsArr();
+        const favRecipes = this.favoritesService.favRecipeDetailsArr();
         // filter out the recipe with the matching id
         const updatedFavRecipes = favRecipes.filter(
           (favRecipe) => favRecipe.id !== recipe.id
         );
         // set the updated array without the recipe
-        this.favoriteService.favRecipeDetailsArr.set(updatedFavRecipes);
+        this.favoritesService.favRecipeDetailsArr.set(updatedFavRecipes);
       }
     }
   }

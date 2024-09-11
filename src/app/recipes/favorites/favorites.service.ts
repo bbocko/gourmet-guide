@@ -4,7 +4,7 @@ import { RecipeDetails } from '../recipe.model';
 @Injectable({
   providedIn: 'root',
 })
-export class FavoriteService {
+export class FavoritesService {
   private readonly FAVORITES_KEY = 'favorites';
 
   public favRecipeDetailsArr = signal<Partial<RecipeDetails>[]>([]);

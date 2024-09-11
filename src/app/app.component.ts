@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/header/header.component';
-import { FavoriteService } from './recipes/favorites/favorite.service';
+import { FavoritesService } from './recipes/favorites/favorites.service';
 import { SearchService } from './recipes/search/search.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -14,7 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class AppComponent implements OnInit {
   private searchService = inject(SearchService);
-  private favoriteService = inject(FavoriteService);
+  private favoritesService = inject(FavoritesService);
 
   private destroyRef = inject(DestroyRef);
 
@@ -23,7 +23,7 @@ export class AppComponent implements OnInit {
   }
 
   loadFavorites() {
-    const favoriteIds = this.favoriteService.getFavorites(); // fetch favorite IDs from local storage
+    const favoriteIds = this.favoritesService.getFavorites(); // fetch favorite IDs from local storage
 
     if (favoriteIds.length === 0) {
       return; // break function if no favorites are stored in local storage

@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { env } from '../../../../env.local';
 import { Observable, tap } from 'rxjs';
 import { RecipeDetails } from '../recipe.model';
-import { FavoriteService } from '../favorites/favorite.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 interface QueryParams {
   query: string;
@@ -23,7 +23,7 @@ export class SearchService {
   private informationBulkUrl =
     'https://api.spoonacular.com/recipes/informationBulk';
 
-  private favoriteService = inject(FavoriteService);
+  private favoritesService = inject(FavoritesService);
   public recipeDetailsArr = signal<Partial<RecipeDetails>[]>([]);
 
   constructor(private http: HttpClient) {}
@@ -56,7 +56,7 @@ export class SearchService {
               // store recipes array and add isFavorite property to each
               // recipe (value is based on if it's already stored as favorite)
               ...recipe,
-              isFavorite: this.favoriteService.isFavorite(recipe.id!),
+              isFavorite: this.favoritesService.isFavorite(recipe.id!),
             };
           })
         );
@@ -68,7 +68,7 @@ export class SearchService {
     let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
     return this.http.get(this.informationBulkUrl, { params }).pipe(
       tap((response: any) => {
-        this.favoriteService.favRecipeDetailsArr.set(
+        this.favoritesService.favRecipeDetailsArr.set(
           response.map((recipe: Partial<RecipeDetails>) => {
             return {
               // store recipes array and mark recipes as favorite
