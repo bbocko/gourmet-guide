@@ -16,19 +16,27 @@ export class FavoritesComponent {
   recipeDetails = computed(() => this.favoriteService.favRecipeDetailsArr());
 
   onIconClicked(id: number) {
-    const recipeIndex = this.recipeDetails().findIndex(
-      (recipe) => recipe.id === id
-    );
+    const recipeArr = this.recipeDetails();
 
-    const recipe = this.recipeDetails();
+    const recipeIndex = recipeArr.findIndex((recipe) => recipe.id === id);
+
+    const recipe = recipeArr[recipeIndex];
 
     if (recipeIndex !== -1) {
-      recipe[recipeIndex].isFavorite = !recipe[recipeIndex].isFavorite;
+      recipe.isFavorite = !recipe.isFavorite;
 
-      if (recipe[recipeIndex].isFavorite) {
-        this.favoriteService.addFavorite(id);
-      } else {
+      if (!recipe.isFavorite) {
+        // remove id from local storage
         this.favoriteService.removeFavorite(id);
+
+        // get the current favorite recipe array
+        const favRecipes = this.favoriteService.favRecipeDetailsArr();
+        // filter out the recipe with the matching id
+        const updatedFavRecipes = favRecipes.filter(
+          (favRecipe) => favRecipe.id !== recipe.id
+        );
+        // set the updated array without the recipe
+        this.favoriteService.favRecipeDetailsArr.set(updatedFavRecipes);
       }
     }
   }

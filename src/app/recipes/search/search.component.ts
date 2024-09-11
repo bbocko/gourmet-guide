@@ -124,19 +124,44 @@ export class SearchComponent {
   }
 
   onIconClicked(id: number) {
-    const recipeIndex = this.searchService
-      .recipeDetailsArr()
-      .findIndex((recipe) => recipe.id === id);
+    const recipeArr = this.recipeDetails();
 
-    const recipe = this.recipeDetails();
+    const recipeIndex = recipeArr.findIndex((recipe) => recipe.id === id);
+
+    const recipe = recipeArr[recipeIndex];
 
     if (recipeIndex !== -1) {
-      recipe[recipeIndex].isFavorite = !recipe[recipeIndex].isFavorite;
+      recipe.isFavorite = !recipe.isFavorite;
 
-      if (recipe[recipeIndex].isFavorite) {
+      if (recipe.isFavorite) {
+        // add id to local storage
         this.favoriteService.addFavorite(id);
+
+        // get the current favorite recipe array
+        const favRecipes = this.favoriteService.favRecipeDetailsArr();
+        // check if the recipe already exists in the favorites array
+        const alreadyFavorite = favRecipes.some(
+          (favRecipe) => favRecipe.id === recipe.id
+        );
+
+        if (!alreadyFavorite) {
+          // if recipe isn't favorite, add it to the array
+          favRecipes.push(recipe);
+          // set the updated array back
+          this.favoriteService.favRecipeDetailsArr.set(favRecipes);
+        }
       } else {
+        // remove id from local storage
         this.favoriteService.removeFavorite(id);
+
+        // get the current favorite recipe array
+        const favRecipes = this.favoriteService.favRecipeDetailsArr();
+        // filter out the recipe with the matching id
+        const updatedFavRecipes = favRecipes.filter(
+          (favRecipe) => favRecipe.id !== recipe.id
+        );
+        // set the updated array without the recipe
+        this.favoriteService.favRecipeDetailsArr.set(updatedFavRecipes);
       }
     }
   }
