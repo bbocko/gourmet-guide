@@ -100,4 +100,10 @@ export class SearchService {
       })
     );
   }
+
+  getRecipeNutrition(id: string): Observable<any> {
+    let nutritionUrl = `https://api.spoonacular.com/recipes/${id}/nutritionWidget.json`;
+    let params = new HttpParams().set('apiKey', this.apiKey);
+    return this.http.get(nutritionUrl, { params });
+  }
 }

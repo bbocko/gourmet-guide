@@ -50,6 +50,74 @@ export interface RecipeDetails {
   spoonacularScore: number;
   spoonacularSourceUrl: string;
   isFavorite: boolean;
+  nutritionData: nutritionData;
+}
+
+export interface nutritionData {
+  calories: string;
+  carbs: string;
+  fat: string;
+  protein: string;
+  bad: Bad[];
+  good: Good[];
+  nutrients: Nutrient[];
+  properties: Nutrient[];
+  flavonoids: Nutrient[];
+  ingredients: Ingredient[];
+  caloricBreakdown: CaloricBreakdown;
+  weightPerServing: WeightPerServing;
+  expires: number;
+  isStale: boolean;
+}
+
+export interface Nutrient {
+  name: string;
+  amount: number;
+  unit: Unit;
+  percentOfDailyNeeds?: number;
+}
+
+export interface Bad {
+  amount: string;
+  indented: boolean;
+  title: string;
+  percentOfDailyNeeds: number;
+}
+
+export interface Good {
+  amount: string;
+  indented: boolean;
+  title: string;
+  percentOfDailyNeeds: number;
+}
+
+export interface CaloricBreakdown {
+  percentFat: number;
+  percentCarbs: number;
+  percentProtein: number;
+}
+
+export enum Unit {
+  Empty = '',
+  G = 'g',
+  Iu = 'IU',
+  Kcal = 'kcal',
+  Mg = 'mg',
+  Unit = '%',
+  Μg = 'µg',
+}
+
+export interface Ingredient {
+  name: string;
+  amount: number;
+  unit: string;
+  id: number;
+  nutrients: Nutrient[];
+}
+
+export interface WeightPerServing {
+  amount: number;
+  unit: Unit;
 }
 
 export interface AnalyzedInstruction {

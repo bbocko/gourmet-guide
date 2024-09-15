@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit, output } from '@angular/core';
 import { SearchService } from '../search/search.service';
 import { FavoritesService } from '../favorites/favorites.service';
-import { RecipeDetails } from '../recipe.model';
+import { Nutrient, nutritionData, RecipeDetails } from '../recipe.model';
 import { ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,6 +39,17 @@ export class DetailsComponent implements OnInit {
   sanitizedSummary: SafeHtml | undefined;
   sanitizedInstructions: SafeHtml | undefined;
 
+  nutritionData: Partial<nutritionData> | undefined;
+  allowedNutrients = [
+    'Calories',
+    'Carbohydrates',
+    'Sugar',
+    'Protein',
+    'Fat',
+    'Saturated Fat',
+  ];
+  filteredNutrients: Nutrient[] = [];
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
 
@@ -67,6 +78,8 @@ export class DetailsComponent implements OnInit {
       this.processRecipeSummary();
       // process the recipe instuctions
       this.processRecipeInstructions();
+      // get recipe nutrition
+      this.getNutritionData(id);
     }
   }
 
@@ -82,6 +95,8 @@ export class DetailsComponent implements OnInit {
             this.processRecipeSummary();
             // process the recipe instuctions
             this.processRecipeInstructions();
+            // get recipe nutrition
+            this.getNutritionData(id);
           }
         },
         error: (error) => console.log('Error fetching recipe details:', error),
@@ -123,6 +138,29 @@ export class DetailsComponent implements OnInit {
     return summaryText
       .replace(/<a[^>]*>(.*?)<\/a>/g, '')
       .replace(/<[^b\/][^>]*>/g, '');
+  }
+
+  getNutritionData(id: string) {
+    this.searchService
+      .getRecipeNutrition(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resData) => {
+          this.nutritionData = resData;
+          this.filterNutrients();
+        },
+        error: (error) =>
+          console.log('Error fetching recipe nutrition:', error),
+      });
+  }
+
+  filterNutrients() {
+    if (this.nutritionData?.nutrients) {
+      // filter nutrients based on the allowed nutrient names
+      this.filteredNutrients = this.nutritionData.nutrients.filter((nutrient) =>
+        this.allowedNutrients.includes(nutrient.name)
+      );
+    }
   }
 
   onIconClick() {

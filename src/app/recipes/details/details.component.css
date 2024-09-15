@@ -129,6 +129,45 @@ mat-icon {
   }
 }
 
+.nutrient-table {
+  margin-top: 2rem;
+}
+
+.nutrient-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.nutrient-table th,
+.nutrient-table td {
+  border: 1px solid #ddd;
+  padding: 1rem;
+}
+
+.nutrient-table th {
+  background-color: #f2f2f2;
+  text-align: center;
+}
+
+.nutrient-table td {
+  text-align: center;
+}
+
+@media screen and (max-width: 600px) {
+  .nutrient-table {
+    margin-top: 1rem;
+  }
+
+  .nutrient-table table {
+    font-size: 0.8rem;
+  }
+
+  .nutrient-table th,
+  .nutrient-table td {
+    padding: 0.75rem;
+  }
+}
+
 .similar-recipes {
   margin-top: 4rem;
 }

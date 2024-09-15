@@ -52,6 +52,30 @@
     <p>{{ this.recipe.winePairing?.pairingText }}</p>
   </div>
 
+  <div class="nutrient-table">
+    <strong>Nutrient Information:</strong>
+    <table>
+      <thead>
+        <tr>
+          <th>Nutrient</th>
+          <th>Amount</th>
+          <th>Unit</th>
+          <th>% Daily Needs</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (nutrient of this.filteredNutrients; track nutrient.name) {
+        <tr>
+          <td>{{ nutrient.name }}</td>
+          <td>{{ nutrient.amount }}</td>
+          <td>{{ nutrient.unit }}</td>
+          <td>{{ nutrient.percentOfDailyNeeds || "N/A" }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
   <div class="similar-recipes">
     <h3>Similar Recipes</h3>
     <div class="recipe-cards">
