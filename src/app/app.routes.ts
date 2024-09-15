@@ -13,7 +13,7 @@ export const routes: Routes = [
     component: FavoritesComponent,
   },
   {
-    path: 'details',
+    path: 'details/:id',
     component: DetailsComponent,
   },
 ];

@@ -1,1 +1,75 @@
-<p>details works!</p>
+@if (this.recipe) {
+<div class="recipe-container">
+  <div class="image-section">
+    <img [src]="this.recipe.image" alt="recipe image" class="recipe-image" />
+  </div>
+
+  <div class="title-section">
+    <div class="title">
+      {{ this.recipe.title }}
+    </div>
+    <mat-icon
+      aria-hidden="false"
+      aria-label="star icon"
+      fontIcon="star"
+      [ngStyle]="{ color: getStarColor() }"
+      matTooltip="{{ getTooltipMessage() }}"
+      (click)="onIconClick()"
+    ></mat-icon>
+  </div>
+
+  <div class="summary-section">
+    <div [innerHTML]="this.sanitizedSummary"></div>
+  </div>
+
+  <div class="recipe-info">
+    <div class="servings-and-time">
+      <div><strong>Servings:</strong> {{ this.recipe.servings }}</div>
+      <div>
+        <strong>Ready in:</strong>
+        {{ this.recipe.readyInMinutes }} mins
+      </div>
+    </div>
+
+    <div class="ingredients">
+      <strong>Ingredients (based on servings):</strong>
+      <ul>
+        @for (ingredient of this.recipe.extendedIngredients; track
+        ingredient.id) {
+        <li>{{ ingredient.original }}</li>
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <strong>Instructions:</strong>
+    <div [innerHTML]="this.sanitizedInstructions"></div>
+  </div>
+
+  <div class="wine-recommendation">
+    <strong>Wine Recommendation:</strong>
+    <p>{{ this.recipe.winePairing?.pairingText }}</p>
+  </div>
+
+  <div class="similar-recipes">
+    <h3>Similar Recipes</h3>
+    <div class="recipe-cards">
+      <app-recipe-card
+        [recipe]="recipe!"
+        (iconClicked)="onIconClicked($event)"
+      ></app-recipe-card
+      ><app-recipe-card
+        [recipe]="recipe!"
+        (iconClicked)="onIconClicked($event)"
+      ></app-recipe-card
+      ><app-recipe-card
+        [recipe]="recipe!"
+        (iconClicked)="onIconClicked($event)"
+      ></app-recipe-card>
+    </div>
+  </div>
+</div>
+} @if (!this.recipe) {
+<h2 class="fallback">No recipe found!</h2>
+}

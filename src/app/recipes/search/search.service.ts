@@ -28,6 +28,11 @@ export class SearchService {
 
   constructor(private http: HttpClient) {}
 
+  getRecipeById(id: string) {
+    const numericId = +id;
+    return this.recipeDetailsArr().find((recipe) => recipe.id === numericId);
+  }
+
   searchRecipes(queryParams: QueryParams): Observable<any> {
     let params = new HttpParams().set('apiKey', this.apiKey);
     for (let key in queryParams) {
@@ -50,6 +55,21 @@ export class SearchService {
     let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
     return this.http.get(this.informationBulkUrl, { params }).pipe(
       tap((response: any) => {
+        response.map((recipe: Partial<RecipeDetails>) => {
+          return {
+            // add isFavorite property to recipe
+            ...recipe,
+            isFavorite: this.favoritesService.isFavorite(recipe.id!),
+          };
+        });
+      })
+    );
+  }
+
+  getRecipeDetailsArr(ids: string): Observable<any> {
+    let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
+    return this.http.get(this.informationBulkUrl, { params }).pipe(
+      tap((response: any) => {
         this.recipeDetailsArr.set(
           response.map((recipe: Partial<RecipeDetails>) => {
             return {
@@ -64,7 +84,7 @@ export class SearchService {
     );
   }
 
-  getFavRecipeDetails(ids: string): Observable<any> {
+  getFavRecipeDetailsArr(ids: string): Observable<any> {
     let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
     return this.http.get(this.informationBulkUrl, { params }).pipe(
       tap((response: any) => {

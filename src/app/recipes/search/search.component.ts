@@ -41,7 +41,7 @@ export class SearchComponent {
   suggestions: Suggestion[] = [];
   recipes: Recipe[] = [];
 
-  recipeDetails = computed(() => this.searchService.recipeDetailsArr());
+  recipeDetailsArr = computed(() => this.searchService.recipeDetailsArr());
 
   constructor() {
     this.query.valueChanges
@@ -76,10 +76,10 @@ export class SearchComponent {
       .subscribe({
         next: (resData) => {
           this.recipes = resData.results;
-          // store recipe IDs (for getRecipeDetails request)
+          // store recipe IDs (for getRecipeDetailsArr request)
           const recipeIds = this.recipes.map((recipe) => recipe.id).join(',');
           // get more details
-          this.searchService.getRecipeDetails(recipeIds).subscribe({
+          this.searchService.getRecipeDetailsArr(recipeIds).subscribe({
             error: (error) => {
               console.log('Error fetching recipe details:', error);
               this.searchService.recipeDetailsArr.set([]);
@@ -124,7 +124,7 @@ export class SearchComponent {
   }
 
   onIconClicked(id: number) {
-    const recipeArr = this.recipeDetails();
+    const recipeArr = this.recipeDetailsArr();
 
     const recipeIndex = recipeArr.findIndex((recipe) => recipe.id === id);
 

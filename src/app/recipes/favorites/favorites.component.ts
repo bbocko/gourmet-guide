@@ -13,10 +13,12 @@ import { RecipeCardComponent } from '../../shared/recipe-card/recipe-card.compon
 export class FavoritesComponent {
   private favoritesService = inject(FavoritesService);
 
-  recipeDetails = computed(() => this.favoritesService.favRecipeDetailsArr());
+  recipeDetailsArr = computed(() =>
+    this.favoritesService.favRecipeDetailsArr()
+  );
 
   onIconClicked(id: number) {
-    const recipeArr = this.recipeDetails();
+    const recipeArr = this.recipeDetailsArr();
 
     const recipeIndex = recipeArr.findIndex((recipe) => recipe.id === id);
 

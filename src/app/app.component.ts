@@ -32,7 +32,7 @@ export class AppComponent implements OnInit {
     const idsString = favoriteIds.join(','); // convert the array of IDs to a comma-separated string
 
     this.searchService
-      .getFavRecipeDetails(idsString)
+      .getFavRecipeDetailsArr(idsString)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         error: (error) => {

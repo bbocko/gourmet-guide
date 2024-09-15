@@ -9,6 +9,11 @@ export class FavoritesService {
 
   public favRecipeDetailsArr = signal<Partial<RecipeDetails>[]>([]);
 
+  getRecipeById(id: string) {
+    const numericId = +id;
+    return this.favRecipeDetailsArr().find((recipe) => recipe.id === numericId);
+  }
+
   getFavorites(): number[] {
     const favorites = localStorage.getItem(this.FAVORITES_KEY);
     return favorites ? JSON.parse(favorites) : [];

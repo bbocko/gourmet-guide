@@ -1,0 +1,172 @@
+/* global box-sizing rule */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.recipe-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+@media screen and (max-width: 600px) {
+  .recipe-container {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+}
+
+.image-section {
+  text-align: center;
+}
+
+.recipe-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 2rem;
+}
+
+@media screen and (max-width: 600px) {
+  .recipe-image {
+    margin-bottom: 1rem;
+  }
+}
+
+.title-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  flex: 90%;
+  overflow-wrap: break-word;
+  font-size: 2rem;
+}
+
+mat-icon {
+  flex: 10%;
+  margin-left: 1rem;
+  font-size: 1.5rem;
+  height: auto;
+  text-align: center;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+  .title {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  mat-icon {
+    font-size: 1.2rem;
+    margin-left: 0.2rem;
+  }
+}
+
+.summary-section {
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+@media screen and (max-width: 600px) {
+  .summary-section {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+}
+
+.recipe-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.servings-and-time {
+  flex: 1;
+  margin-right: 2rem;
+}
+
+.servings-and-time div {
+  margin-bottom: 1rem;
+}
+
+.ingredients {
+  flex: 1;
+}
+
+.ingredients ul {
+  padding-left: 1rem;
+}
+
+@media screen and (max-width: 600px) {
+  .recipe-info {
+    flex-direction: column;
+  }
+  .servings-and-time {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+  .ingredients {
+    margin-right: 0;
+  }
+}
+
+.wine-recommendation {
+  margin-top: 2rem;
+}
+
+@media screen and (max-width: 600px) {
+  .wine-recommendation {
+    margin-top: 1rem;
+  }
+}
+
+.similar-recipes {
+  margin-top: 4rem;
+}
+
+.similar-recipes h3 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.recipe-cards {
+  display: flex;
+  justify-content: space-between;
+}
+
+@media screen and (max-width: 600px) {
+  .similar-recipes {
+    margin-top: 2rem;
+  }
+
+  .recipe-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  app-recipe-card {
+    margin-bottom: 1rem;
+  }
+}
+
+.fallback {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #666;
+}
+
+@media screen and (max-width: 600px) {
+  .fallback {
+    font-size: 1.2rem;
+  }
+}
