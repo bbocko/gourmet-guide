@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { RecipeDetails } from '../recipe.model';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +10,9 @@ export class FavoritesService {
 
   public favRecipeDetailsArr = signal<Partial<RecipeDetails>[]>([]);
 
+  private favoritesLoadedSubject = new BehaviorSubject<boolean>(false);
+  favoritesLoaded$ = this.favoritesLoadedSubject.asObservable();
+
   getRecipeById(id: string) {
     const numericId = +id;
     return this.favRecipeDetailsArr().find((recipe) => recipe.id === numericId);
@@ -17,6 +21,11 @@ export class FavoritesService {
   getFavorites(): number[] {
     const favorites = localStorage.getItem(this.FAVORITES_KEY);
     return favorites ? JSON.parse(favorites) : [];
+  }
+
+  loadFavorites(favorites: Partial<RecipeDetails>[]) {
+    this.favRecipeDetailsArr.set(favorites);
+    this.favoritesLoadedSubject.next(true); // notify that favorites are loaded
   }
 
   addFavorite(id: number): void {

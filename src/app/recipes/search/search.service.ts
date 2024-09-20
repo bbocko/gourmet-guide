@@ -73,8 +73,7 @@ export class SearchService {
         this.recipeDetailsArr.set(
           response.map((recipe: Partial<RecipeDetails>) => {
             return {
-              // store recipes array and add isFavorite property to each
-              // recipe (value is based on if it's already stored as favorite)
+              // store recipes array and add isFavorite property to each (value is based on if it's already stored as favorite)
               ...recipe,
               isFavorite: this.favoritesService.isFavorite(recipe.id!),
             };
@@ -86,17 +85,22 @@ export class SearchService {
 
   getFavRecipeDetailsArr(ids: string): Observable<any> {
     let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
+
     return this.http.get(this.informationBulkUrl, { params }).pipe(
       tap((response: any) => {
-        this.favoritesService.favRecipeDetailsArr.set(
-          response.map((recipe: Partial<RecipeDetails>) => {
+        const favoriteRecipes = response.map(
+          (recipe: Partial<RecipeDetails>) => {
             return {
-              // store recipes array and mark recipes as favorite
+              // mark recipes as favorite
               ...recipe,
               isFavorite: true,
             };
-          })
+          }
         );
+        // store the recipes in the local array
+        this.favoritesService.favRecipeDetailsArr.set(favoriteRecipes);
+        // notify the FavoritesService that the loading is complete
+        this.favoritesService.loadFavorites(favoriteRecipes);
       })
     );
   }

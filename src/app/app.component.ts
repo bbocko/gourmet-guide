@@ -1,9 +1,8 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/header/header.component';
 import { FavoritesService } from './recipes/favorites/favorites.service';
 import { SearchService } from './recipes/search/search.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
@@ -16,8 +15,6 @@ export class AppComponent implements OnInit {
   private searchService = inject(SearchService);
   private favoritesService = inject(FavoritesService);
 
-  private destroyRef = inject(DestroyRef);
-
   ngOnInit() {
     this.loadFavorites();
   }
@@ -26,18 +23,17 @@ export class AppComponent implements OnInit {
     const favoriteIds = this.favoritesService.getFavorites(); // fetch favorite IDs from local storage
 
     if (favoriteIds.length === 0) {
-      return; // break function if no favorites are stored in local storage
+      this.favoritesService.loadFavorites([]); // notify that no favorites are present
+      return; // exit function if no favorites are stored in local storage
     }
 
     const idsString = favoriteIds.join(','); // convert the array of IDs to a comma-separated string
 
-    this.searchService
-      .getFavRecipeDetailsArr(idsString)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: (error) => {
-          console.log('Error fetching favorite recipe details:', error);
-        },
-      });
+    // trigger the loading in the SearchService and FavoritesService
+    this.searchService.getFavRecipeDetailsArr(idsString).subscribe({
+      error: (error) => {
+        console.log('Error fetching favorite recipe details:', error);
+      },
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, output } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { SearchService } from '../search/search.service';
 import { FavoritesService } from '../favorites/favorites.service';
 import { Nutrient, nutritionData, RecipeDetails } from '../recipe.model';
@@ -33,8 +33,7 @@ export class DetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   recipeId: string | undefined;
-  recipe: Partial<RecipeDetails> | undefined;
-  iconClicked = output<number>();
+  recipe = signal<Partial<RecipeDetails> | undefined>(undefined);
 
   sanitizedSummary: SafeHtml | undefined;
   sanitizedInstructions: SafeHtml | undefined;
@@ -56,30 +55,39 @@ export class DetailsComponent implements OnInit {
     if (id) {
       this.recipeId = id;
 
-      // check if recipe is stored in-memory
-      this.loadRecipe(id);
+      // wait for favorites to be loaded before checking if the recipe is stored in-memory
+      this.favoritesService.favoritesLoaded$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((favoritesLoaded) => {
+          if (favoritesLoaded) {
+            // once favorites are loaded, check if recipe is stored in-memory
+            this.loadRecipe(id);
 
-      if (!this.recipe) {
-        // get recipe details from API
-        this.fetchRecipeFromAPI(this.recipeId!);
-      }
+            if (!this.recipe()) {
+              // if recipe is not in memory, fetch it from API
+              this.fetchRecipeFromAPI(this.recipeId!);
+            }
+          }
+        });
     } else {
       console.log('No valid recipe id found!');
     }
   }
 
   loadRecipe(id: string) {
-    this.recipe =
+    const recipe =
       this.searchService.getRecipeById(id) ||
       this.favoritesService.getRecipeById(id);
 
-    if (this.recipe) {
+    if (recipe) {
       // process the recipe summary
-      this.processRecipeSummary();
+      this.processRecipeSummary(recipe);
       // process the recipe instuctions
-      this.processRecipeInstructions();
+      this.processRecipeInstructions(recipe);
       // get recipe nutrition
       this.getNutritionData(id);
+
+      this.recipe.set(recipe);
     }
   }
 
@@ -89,34 +97,36 @@ export class DetailsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resData) => {
-          this.recipe = resData.length > 0 ? resData[0] : undefined;
-          if (this.recipe) {
+          const recipe = resData.length > 0 ? resData[0] : undefined;
+          if (recipe) {
             // process the recipe summary
-            this.processRecipeSummary();
+            this.processRecipeSummary(recipe);
             // process the recipe instuctions
-            this.processRecipeInstructions();
+            this.processRecipeInstructions(recipe);
             // get recipe nutrition
             this.getNutritionData(id);
           }
+
+          this.recipe.set(recipe);
         },
         error: (error) => console.log('Error fetching recipe details:', error),
       });
   }
 
   // process and sanitize the recipe's summary
-  processRecipeSummary() {
-    if (this.recipe?.summary) {
-      const cleanSummary = this.removeAnchorTags(this.recipe.summary);
+  processRecipeSummary(recipe: Partial<RecipeDetails>) {
+    if (recipe.summary) {
+      const cleanSummary = this.removeAnchorTags(recipe.summary);
       this.sanitizedSummary =
         this.sanitizer.bypassSecurityTrustHtml(cleanSummary);
     }
   }
 
   // process and sanitize the recipe's instructions
-  processRecipeInstructions() {
-    if (this.recipe?.instructions) {
+  processRecipeInstructions(recipe: Partial<RecipeDetails>) {
+    if (recipe.instructions) {
       this.sanitizedInstructions = this.sanitizer.bypassSecurityTrustHtml(
-        this.recipe.instructions
+        recipe.instructions
       );
     }
   }
@@ -146,7 +156,7 @@ export class DetailsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (resData) => {
-          this.nutritionData = resData;
+          this.recipe()!.nutritionData = resData;
           this.filterNutrients();
         },
         error: (error) =>
@@ -155,29 +165,61 @@ export class DetailsComponent implements OnInit {
   }
 
   filterNutrients() {
-    if (this.nutritionData?.nutrients) {
+    const nutritionData = this.recipe()!.nutritionData;
+    if (nutritionData?.nutrients) {
       // filter nutrients based on the allowed nutrient names
-      this.filteredNutrients = this.nutritionData.nutrients.filter((nutrient) =>
+      this.filteredNutrients = nutritionData.nutrients.filter((nutrient) =>
         this.allowedNutrients.includes(nutrient.name)
       );
     }
   }
 
-  onIconClick() {
-    this.iconClicked.emit(this.recipe!.id!);
+  onIconClicked(id: number) {
+    const recipe = this.recipe()!;
+
+    recipe.isFavorite = !recipe.isFavorite;
+
+    if (recipe.isFavorite) {
+      // add id to local storage
+      this.favoritesService.addFavorite(id);
+
+      // get the current favorite recipe array
+      const favRecipes = this.favoritesService.favRecipeDetailsArr();
+      // check if the recipe already exists in the favorites array
+      const alreadyFavorite = favRecipes.some(
+        (favRecipe) => favRecipe.id === recipe.id
+      );
+
+      if (!alreadyFavorite) {
+        // if recipe isn't favorite, add it to the array
+        favRecipes.push(recipe);
+        // set the updated array back
+        this.favoritesService.favRecipeDetailsArr.set(favRecipes);
+      }
+    } else {
+      // remove id from local storage
+      this.favoritesService.removeFavorite(id);
+
+      // get the current favorite recipe array
+      const favRecipes = this.favoritesService.favRecipeDetailsArr();
+      // filter out the recipe with the matching id
+      const updatedFavRecipes = favRecipes.filter(
+        (favRecipe) => favRecipe.id !== recipe.id
+      );
+      // set the updated array without the recipe
+      this.favoritesService.favRecipeDetailsArr.set(updatedFavRecipes);
+    }
   }
 
-  onIconClicked(id: number) {
+  onCardIconClicked(id: number) {
     console.log(id);
   }
 
-  getTooltipMessage() {
-    return this.recipe!.isFavorite
-      ? 'Remove from favorites'
-      : 'Add to favorites';
+  getTooltipMessage(recipe: Partial<RecipeDetails>) {
+    return recipe.isFavorite ? 'Remove from favorites' : 'Add to favorites';
   }
 
-  getStarColor() {
-    return this.recipe!.isFavorite ? 'gold' : 'black';
+  getStarColor(recipe: Partial<RecipeDetails>) {
+    return recipe.isFavorite ? 'gold' : 'black';
   }
 }
