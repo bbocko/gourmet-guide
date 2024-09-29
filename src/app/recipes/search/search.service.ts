@@ -66,6 +66,27 @@ export class SearchService {
     );
   }
 
+  getSimilarRecipes(id: string): Observable<any> {
+    let similarUrl = `https://api.spoonacular.com/recipes/${id}/similar`;
+    let params = new HttpParams().set('apiKey', this.apiKey).set('number', '3');
+    return this.http.get(similarUrl, { params });
+  }
+
+  getSimilarRecipeDetailsArr(ids: string): Observable<any> {
+    let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
+    return this.http.get(this.informationBulkUrl, { params }).pipe(
+      tap((response: any) => {
+        response.map((recipe: Partial<RecipeDetails>) => {
+          return {
+            // return recipes array and add isFavorite property to each (value is based on if it's already stored as favorite)
+            ...recipe,
+            isFavorite: this.favoritesService.isFavorite(recipe.id!),
+          };
+        });
+      })
+    );
+  }
+
   getRecipeDetailsArr(ids: string): Observable<any> {
     let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
     return this.http.get(this.informationBulkUrl, { params }).pipe(

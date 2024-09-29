@@ -50,10 +50,10 @@ export interface RecipeDetails {
   spoonacularScore: number;
   spoonacularSourceUrl: string;
   isFavorite: boolean;
-  nutritionData: nutritionData;
+  nutritionData: NutritionData;
 }
 
-export interface nutritionData {
+export interface NutritionData {
   calories: string;
   carbs: string;
   fat: string;
@@ -68,6 +68,15 @@ export interface nutritionData {
   weightPerServing: WeightPerServing;
   expires: number;
   isStale: boolean;
+}
+
+export interface SimilarRecipes {
+  id: number;
+  imageType: string;
+  title: string;
+  readyInMinutes: number;
+  servings: number;
+  sourceUrl: string;
 }
 
 export interface Nutrient {

@@ -1,7 +1,12 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { SearchService } from '../search/search.service';
 import { FavoritesService } from '../favorites/favorites.service';
-import { Nutrient, nutritionData, RecipeDetails } from '../recipe.model';
+import {
+  Nutrient,
+  NutritionData,
+  RecipeDetails,
+  SimilarRecipes,
+} from '../recipe.model';
 import { ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,11 +39,15 @@ export class DetailsComponent implements OnInit {
 
   recipeId: string | undefined;
   recipe = signal<Partial<RecipeDetails> | undefined>(undefined);
+  similarRecipesArr = signal<Partial<SimilarRecipes[]> | undefined>(undefined);
+  similarRecipesDetailsArr = signal<Partial<RecipeDetails[]> | undefined>(
+    undefined
+  );
 
   sanitizedSummary: SafeHtml | undefined;
   sanitizedInstructions: SafeHtml | undefined;
 
-  nutritionData: Partial<nutritionData> | undefined;
+  nutritionData: Partial<NutritionData> | undefined;
   allowedNutrients = [
     'Calories',
     'Carbohydrates',
@@ -50,28 +59,62 @@ export class DetailsComponent implements OnInit {
   filteredNutrients: Nutrient[] = [];
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const id = params.get('id');
+        if (id) {
+          this.recipeId = id;
 
-    if (id) {
-      this.recipeId = id;
+          // reset component state
+          this.resetRecipeState();
 
-      // wait for favorites to be loaded before checking if the recipe is stored in-memory
-      this.favoritesService.favoritesLoaded$
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((favoritesLoaded) => {
-          if (favoritesLoaded) {
-            // once favorites are loaded, check if recipe is stored in-memory
-            this.loadRecipe(id);
+          // load recipe and similar recipes based on ID
+          this.loadRecipeData(id);
+        } else {
+          console.log('No valid recipe id found!');
+        }
+      });
+  }
 
-            if (!this.recipe()) {
-              // if recipe is not in memory, fetch it from API
-              this.fetchRecipeFromAPI(this.recipeId!);
-            }
+  loadRecipeData(id: string) {
+    // wait for favorites to be loaded before checking if the recipe is stored in-memory
+    this.favoritesService.favoritesLoaded$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((favoritesLoaded) => {
+        if (favoritesLoaded) {
+          this.loadRecipe(id);
+
+          if (!this.recipe()) {
+            this.fetchRecipeFromAPI(id);
           }
-        });
-    } else {
-      console.log('No valid recipe id found!');
-    }
+        }
+      });
+
+    this.searchService
+      .getSimilarRecipes(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (resData) => {
+          this.similarRecipesArr.set(resData);
+          const recipeIds = this.similarRecipesArr()!
+            .map((recipe) => recipe!.id)
+            .join(',');
+          this.searchService.getSimilarRecipeDetailsArr(recipeIds).subscribe({
+            next: (resData) => {
+              this.similarRecipesDetailsArr.set(resData);
+            },
+            error: (error) => {
+              console.log('Error fetching similar recipe details:', error);
+              this.similarRecipesDetailsArr.set(undefined);
+            },
+          });
+        },
+        error: (error) => {
+          console.log('Error fetching similar recipes:', error);
+          this.similarRecipesArr.set(undefined);
+        },
+      });
   }
 
   loadRecipe(id: string) {
@@ -111,6 +154,16 @@ export class DetailsComponent implements OnInit {
         },
         error: (error) => console.log('Error fetching recipe details:', error),
       });
+  }
+
+  // method to reset component state when the route parameter changes
+  resetRecipeState() {
+    this.recipe.set(undefined);
+    this.sanitizedSummary = undefined;
+    this.sanitizedInstructions = undefined;
+    this.filteredNutrients = [];
+    this.similarRecipesArr.set(undefined);
+    this.similarRecipesDetailsArr.set(undefined);
   }
 
   // process and sanitize the recipe's summary

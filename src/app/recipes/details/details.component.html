@@ -79,18 +79,12 @@
   <div class="similar-recipes">
     <h3>Similar Recipes</h3>
     <div class="recipe-cards">
+      @for (recipe of similarRecipesDetailsArr(); track recipe!.id) {
       <app-recipe-card
-        [recipe]="this.recipe()!"
-        (iconClicked)="onCardIconClicked($event)"
-      ></app-recipe-card
-      ><app-recipe-card
-        [recipe]="this.recipe()!"
-        (iconClicked)="onCardIconClicked($event)"
-      ></app-recipe-card
-      ><app-recipe-card
-        [recipe]="this.recipe()!"
+        [recipe]="recipe!"
         (iconClicked)="onCardIconClicked($event)"
       ></app-recipe-card>
+      }
     </div>
   </div>
 </div>
