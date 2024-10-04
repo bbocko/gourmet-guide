@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { env } from '../../../../env.local';
-import { Observable, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { RecipeDetails } from '../recipe.model';
 import { FavoritesService } from '../favorites/favorites.service';
 
@@ -75,14 +75,13 @@ export class SearchService {
   getSimilarRecipeDetailsArr(ids: string): Observable<any> {
     let params = new HttpParams().set('apiKey', this.apiKey).set('ids', ids);
     return this.http.get(this.informationBulkUrl, { params }).pipe(
-      tap((response: any) => {
-        response.map((recipe: Partial<RecipeDetails>) => {
-          return {
-            // return recipes array and add isFavorite property to each (value is based on if it's already stored as favorite)
-            ...recipe,
-            isFavorite: this.favoritesService.isFavorite(recipe.id!),
-          };
-        });
+      // use map operator to modify the observable data stream to include "isFavorite" property
+      map((response: any) => {
+        return response.map((recipe: Partial<RecipeDetails>) => ({
+          // add isFavorite property to recipe
+          ...recipe,
+          isFavorite: this.favoritesService.isFavorite(recipe.id!),
+        }));
       })
     );
   }

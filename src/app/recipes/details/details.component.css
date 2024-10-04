@@ -180,7 +180,7 @@ mat-icon {
 
 .recipe-cards {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
 }
 
 @media screen and (max-width: 600px) {

@@ -97,9 +97,11 @@ export class DetailsComponent implements OnInit {
       .subscribe({
         next: (resData) => {
           this.similarRecipesArr.set(resData);
+
           const recipeIds = this.similarRecipesArr()!
             .map((recipe) => recipe!.id)
             .join(',');
+
           this.searchService.getSimilarRecipeDetailsArr(recipeIds).subscribe({
             next: (resData) => {
               this.similarRecipesDetailsArr.set(resData);
@@ -265,7 +267,42 @@ export class DetailsComponent implements OnInit {
   }
 
   onCardIconClicked(id: number) {
-    console.log(id);
+    const recipe = this.similarRecipesDetailsArr()!.find(
+      (recipe) => recipe!.id === id
+    );
+
+    recipe!.isFavorite = !recipe!.isFavorite;
+
+    if (recipe!.isFavorite) {
+      // add id to local storage
+      this.favoritesService.addFavorite(id);
+
+      // get the current favorite recipe array
+      const favRecipes = this.favoritesService.favRecipeDetailsArr();
+      // check if the recipe already exists in the favorites array
+      const alreadyFavorite = favRecipes.some(
+        (favRecipe) => favRecipe.id === recipe!.id
+      );
+
+      if (!alreadyFavorite) {
+        // if recipe isn't favorite, add it to the array
+        favRecipes.push(recipe!);
+        // set the updated array back
+        this.favoritesService.favRecipeDetailsArr.set(favRecipes);
+      }
+    } else {
+      // remove id from local storage
+      this.favoritesService.removeFavorite(id);
+
+      // get the current favorite recipe array
+      const favRecipes = this.favoritesService.favRecipeDetailsArr();
+      // filter out the recipe with the matching id
+      const updatedFavRecipes = favRecipes.filter(
+        (favRecipe) => favRecipe.id !== recipe!.id
+      );
+      // set the updated array without the recipe
+      this.favoritesService.favRecipeDetailsArr.set(updatedFavRecipes);
+    }
   }
 
   getTooltipMessage(recipe: Partial<RecipeDetails>) {
