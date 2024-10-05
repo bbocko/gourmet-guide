@@ -1,27 +1,64 @@
-# GourmetGuide
+# Gourmet Guide
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.1.4.
+Gourmet Guide is a web application designed to help users discover delicious recipes and save favorites to local storage. 
 
-## Development server
+Built using Angular, the app is fast, responsive, and ready to receive additional features in near future.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Table of Contents
 
-## Code scaffolding
+- [Features](#features)
+- [Installation](#installation)
+- [Running the App](#running-the-app)
+- [Building for Production](#building-for-production)
+- [Contributing](#contributing)
+- [License](#license)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Features
 
-## Build
+- Discover a variety of recipes based on user preferences
+- Save favorite recipes to local storage
+- User-friendly interface with responsive design
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Installation
 
-## Running unit tests
+To get started with Gourmet Guide, follow these steps:
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/bbocko/gourmet-guide.git
+    cd gourmet-guide
+    ```
 
-## Running end-to-end tests
+2. **Install dependencies**:
+    Make sure you have [Node.js](https://nodejs.org/) and [Angular CLI](https://angular.io/cli) installed.
+    ```bash
+    npm install
+    ```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Running the App
 
-## Further help
+1. **Start the development server**:
+    ```bash
+    ng serve
+    ```
+    The app will be accessible at `http://localhost:4200/`. The server will automatically reload if you make changes to the source files.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Building for Production
+
+To create a production build, run:
+```bash
+ng build
+```
+
+## Contributing
+Contributions are welcome! If you would like to contribute to Gourmet Guide:
+
+1. Fork the repository
+2. Create a feature branch (git checkout -b feature/your-feature-name)
+3. Commit your changes (git commit -m 'Add feature')
+4. Push the branch (git push origin feature/your-feature-name)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
